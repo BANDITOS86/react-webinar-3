@@ -3,26 +3,27 @@
  */
 class Store {
   constructor(initState = {}) {
-    this.state = initState;
+    this.state = {
+      ...initState,
+      nextItemCode: 1, // Начальное значение для кода следующей записи
+      selectedCounts: {}, // Новое поле для отслеживания количества выделений
+    };
     this.listeners = []; // Слушатели изменений состояния
   }
 
   /**
    * Подписка слушателя на изменения состояния
-   * @param listener {Function}
-   * @returns {Function} Функция отписки
    */
   subscribe(listener) {
     this.listeners.push(listener);
     // Возвращается функция для удаления добавленного слушателя
     return () => {
-      this.listeners = this.listeners.filter(item => item !== listener);
-    }
+      this.listeners = this.listeners.filter((item) => item !== listener);
+    };
   }
 
   /**
    * Выбор состояния
-   * @returns {Object}
    */
   getState() {
     return this.state;
@@ -30,7 +31,6 @@ class Store {
 
   /**
    * Установка состояния
-   * @param newState {Object}
    */
   setState(newState) {
     this.state = newState;
@@ -39,40 +39,85 @@ class Store {
   }
 
   /**
+   * Генерация уникального кода для новой записи
+   */
+  generateUniqueCode() {
+    const existingCodes = this.state.list.map((item) => item.code);
+    let newCode = this.state.nextItemCode || 1;
+
+    // Проверяем, чтобы новый код был уникальным и больше предыдущего максимального кода
+    while (existingCodes.includes(newCode)) {
+      newCode++;
+    }
+
+    return newCode;
+  }
+
+  /**
+   * Генерация нового кода для следующей записи
+   */
+  generateNewCodeForNextItem() {
+    const newCode = this.generateUniqueCode();
+
+    this.setState({
+      ...this.state,
+      nextItemCode: newCode,
+    });
+  }
+
+  /**
    * Добавление новой записи
    */
   addItem() {
+    const newCode = this.generateUniqueCode();
+
     this.setState({
       ...this.state,
-      list: [...this.state.list, {code: this.state.list.length + 1, title: 'Новая запись'}]
-    })
-  };
+      list: [...this.state.list, { code: newCode, title: "Новая запись" }],
+    });
+  }
 
   /**
    * Удаление записи по коду
-   * @param code
    */
   deleteItem(code) {
+    const updatedList = this.state.list.filter((item) => item.code !== code);
+
+    // Если удалена последняя запись, обновляем код и порядковый номер для новой записи
+    if (this.state.list.length > updatedList.length) {
+      this.generateNewCodeForNextItem();
+    }
+
     this.setState({
       ...this.state,
-      list: this.state.list.filter(item => item.code !== code)
-    })
-  };
+      list: updatedList,
+    });
+  }
 
   /**
    * Выделение записи по коду
-   * @param code
    */
   selectItem(code) {
+    const selectedCounts = { ...this.state.selectedCounts };
+
     this.setState({
       ...this.state,
-      list: this.state.list.map(item => {
+      list: this.state.list.map((item) => {
         if (item.code === code) {
+          // Инвертируем значение selected для текущей записи
           item.selected = !item.selected;
+
+          // Обновляем количество выделений для текущей записи
+          selectedCounts[code] = selectedCounts[code] || 0;
+          selectedCounts[code] += item.selected ? 1 : -1;
+        } else {
+          // Сбрасываем выделение для других записей
+          item.selected = false;
         }
         return item;
-      })
-    })
+      }),
+      selectedCounts,
+    });
   }
 }
 
