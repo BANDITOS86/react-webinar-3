@@ -1,14 +1,14 @@
-import React from 'react';
-import {createElement, getEnding} from './utils.js';
-import './styles.css';
+import React from "react";
+import { createElement, getEnding } from "./utils.js";
+import "./styles.css";
 
 /**
  * Приложение
  * @param store {Store} Хранилище состояния приложения
  * @returns {React.ReactElement}
  */
-function App({store}) {
-  console.log(store);
+function App({ store }) {
+  // console.log(store);
 
   const list = store.getState().list;
   const selectedCounts = store.getState().selectedCounts;
@@ -35,7 +35,11 @@ function App({store}) {
                   {/* Отображение количества выделений */}
                   {selectedCounts[item.code] > 0 && (
                     <span className="Item-title">
-                      {`| Выделяли ${getEnding(selectedCounts[item.code])}`}
+                      {`| Выделяли ${getEnding(
+                        selectedCounts[item.code],
+                        "раз",
+                        "раза"
+                      )}`}
                     </span>
                   )}
                 </div>

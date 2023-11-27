@@ -28,16 +28,16 @@ export function createElement(name, props = {}, ...children) {
 }
 
 // Функция для определения окончания слова в зависимости от числа
-export const getEnding = (count) => {
+export const getEnding = (count, singleForm, pluralForm) => {
   if (count % 10 === 1 && count % 100 !== 11) {
-    return count + " раз";
+    return count + ` ${singleForm}`;
   } else if (
     count % 10 >= 2 &&
     count % 10 <= 4 &&
     (count % 100 < 10 || count % 100 >= 20)
   ) {
-    return `${count} раза`;
+    return `${count} ${pluralForm}`;
   } else {
-    return `${count} раз`;
+    return `${count} ${singleForm}`;
   }
 }

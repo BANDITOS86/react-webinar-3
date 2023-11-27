@@ -42,13 +42,10 @@ class Store {
    * Генерация уникального кода для новой записи
    */
   generateUniqueCode() {
-    const existingCodes = this.state.list.map((item) => item.code);
+    const existingCodes = new Set(this.state.list.map((item) => item.code));
     let newCode = this.state.nextItemCode || 1;
 
-    // Проверяем, чтобы новый код был уникальным и больше предыдущего максимального кода
-    while (existingCodes.includes(newCode)) {
-      newCode++;
-    }
+    for (; existingCodes.has(newCode); newCode++);
 
     return newCode;
   }
@@ -109,7 +106,7 @@ class Store {
 
           // Обновляем количество выделений для текущей записи
           selectedCounts[code] = selectedCounts[code] || 0;
-          selectedCounts[code] += item.selected ? 1 : -1;
+          selectedCounts[code] += item.selected ? 1 : 0;
         } else {
           // Сбрасываем выделение для других записей
           item.selected = false;
