@@ -1,4 +1,4 @@
-import {generateCode} from "./utils";
+import { generateCode } from "./utils";
 
 /**
  * Хранилище состояния приложения
@@ -18,8 +18,8 @@ class Store {
     this.listeners.push(listener);
     // Возвращается функция для удаления добавленного слушателя
     return () => {
-      this.listeners = this.listeners.filter(item => item !== listener);
-    }
+      this.listeners = this.listeners.filter((item) => item !== listener);
+    };
   }
 
   /**
@@ -41,47 +41,88 @@ class Store {
   }
 
   /**
-   * Добавление новой записи
+   * Добавление товара в корзину
+   * @param item {Object}
    */
-  addItem() {
-    this.setState({
-      ...this.state,
-      list: [...this.state.list, {code: generateCode(), title: 'Новая запись'}]
-    })
-  };
+  addToCart(item) {
+    const { cart } = this.state;
 
-  /**
-   * Удаление записи по коду
-   * @param code
-   */
-  deleteItem(code) {
-    this.setState({
-      ...this.state,
-      // Новый список, в котором не будет удаляемой записи
-      list: this.state.list.filter(item => item.code !== code)
-    })
-  };
+    // Инициализируем объект cart, если его нет
+    if (!cart) {
+      this.state.cart = {
+        items: [],
+        count: 0,
+        total: 0,
+      };
+    }
 
-  /**
-   * Выделение записи по коду
-   * @param code
-   */
-  selectItem(code) {
+    const existingItem = this.state.cart.items.find(
+      (cartItem) => cartItem.code === item.code
+    );
+
+    if (existingItem) {
+      // Уже есть в корзине, увеличиваем количество
+      existingItem.quantity += 1;
+    } else {
+      // Новый товар в корзине
+      this.state.cart.items.push({ ...item, quantity: 1 });
+    }
+
+    // Пересчитываем общее количество и сумму в корзине
+    const totalCount = this.state.cart.items.reduce(
+      (count, cartItem) => count + cartItem.quantity,
+      0
+    );
+    const totalAmount = this.state.cart.items.reduce(
+      (amount, cartItem) => amount + cartItem.price * cartItem.quantity,
+      0
+    );
+
+    // Обновляем состояние
     this.setState({
       ...this.state,
-      list: this.state.list.map(item => {
-        if (item.code === code) {
-          // Смена выделения и подсчёт
-          return {
-            ...item,
-            selected: !item.selected,
-            count: item.selected ? item.count : item.count + 1 || 1,
-          };
-        }
-        // Сброс выделения если выделена
-        return item.selected ? {...item, selected: false} : item;
-      })
-    })
+      cart: {
+        ...this.state.cart,
+        count: totalCount,
+        total: totalAmount,
+      },
+    });
+  }
+
+  removeFromCart(itemCode) {
+    const itemToRemove = this.state.cart.items.find(
+      (item) => item.code === itemCode
+    );
+
+    if (!itemToRemove) return;
+
+    // Если количество больше 1, уменьшаем на 1, иначе удаляем полностью
+    const updatedItems =
+      itemToRemove.quantity > 1
+        ? this.state.cart.items.map((item) =>
+            item.code === itemCode
+              ? { ...item, quantity: item.quantity - 1 }
+              : item
+          )
+        : this.state.cart.items.filter((item) => item.code !== itemCode);
+
+    const updatedTotal = this.state.cart.total - itemToRemove.price;
+    const updatedCount = updatedItems.reduce(
+      (count, item) => count + item.quantity,
+      0
+    );
+
+    const updatedCart = {
+      ...this.state.cart,
+      items: updatedItems,
+      total: updatedTotal,
+      count: updatedCount,
+    };
+
+    this.setState({
+      ...this.state,
+      cart: updatedCart,
+    });
   }
 }
 
