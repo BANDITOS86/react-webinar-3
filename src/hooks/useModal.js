@@ -7,7 +7,6 @@ const useModal = (isOpen, onClose, modalContent) => {
     }
   };
   
-
   const handleKeyPress = (event) => {
     if (isOpen && event.key === "Escape") {
       onClose();
