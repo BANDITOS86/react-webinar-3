@@ -13,13 +13,13 @@ function Item({ item, onAddToCart }) {
 
   return (
     <div className={"Item"} onClick={callbacks.onClick}>
-      <div className="Item-code">{item.code}</div>
-      <div className="Item-title">
-        {item.title}
-        <span>{item.price} ₽</span>
+      <div className="Item-details">
+        <span className="Item-code">{item.code}</span>
+        <h3 className="Item-title">{item.title}</h3>
       </div>
       <div className="Item-actions">
-        <Button textButton="Доьавить" onClick={callbacks.onAddToCart} />
+        <span className="Item-price">{item.price.toLocaleString()} ₽</span>
+        <Button className="Item=button" textButton="Добавить" onClick={callbacks.onAddToCart} />
       </div>
     </div>
   );

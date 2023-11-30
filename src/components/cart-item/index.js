@@ -1,23 +1,21 @@
 import React from "react";
 import PropTypes from "prop-types";
-import "./style.css";
 import Button from "../button";
+import "./style.css";
 
-function CartItem(props) {
-  const callbacks = {
-    onRemove: () => {
-      props.onRemove(props.item.code);
-    },
-  };
-
+function CartItem({ item, removeFromCart }) {
   return (
-    <div className={"CartItem"}>
-      <div className="CartItem-title">
-        {props.item.title}
-        <span>{props.item.price} ₽</span>
+    <div key={item.code} className="Cart-item">
+      <div className="Cart-item__info">
+        <span className="Cart-item__info-code">{item.code}</span>
+        <span className="Cart-item__info-title">{item.title}</span>
       </div>
-      <div className="CartItem-actions">
-        <Button textButton="Удалить" onClick={callbacks.onRemove} />
+      <div className="Cart-item__wrapper">
+        <div className="Cart-item__details">
+          <span className="Cart-item__details-price">{(item.price * item.quantity).toLocaleString()} ₽</span>
+          <span className="Cart-item__details-quantity">{item.quantity} шт.</span>
+        </div>
+        <Button textButton="Удалить" onClick={() => removeFromCart(item.code)} />
       </div>
     </div>
   );
@@ -28,8 +26,9 @@ CartItem.propTypes = {
     code: PropTypes.number,
     title: PropTypes.string,
     price: PropTypes.number,
+    quantity: PropTypes.number,
   }).isRequired,
-  onRemove: PropTypes.func.isRequired,
+  removeFromCart: PropTypes.func.isRequired,
 };
 
 export default React.memo(CartItem);

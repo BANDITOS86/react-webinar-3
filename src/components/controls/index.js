@@ -10,7 +10,7 @@ function Controls({ onOpenCart, cartInfo }) {
         one: 'товар',
         few: 'товара',
         many: 'товаров',
-      })} / ${cartInfo.total} ₽`
+      })} / ${cartInfo.total.toLocaleString()} ₽`
     : "пусто";
 
   return (
@@ -19,11 +19,7 @@ function Controls({ onOpenCart, cartInfo }) {
         <span className="Controls-info__title">В корзине:</span>
         <span className="Controls-info__count">{itemCountText}</span>
       </div>
-      <Button
-        className="Controls-info__button"
-        textButton="Перейти"
-        onClick={onOpenCart}
-      />
+      <Button className="Controls-info__button" textButton="Перейти" onClick={onOpenCart} />
     </div>
   );
 }
